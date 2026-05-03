@@ -1,0 +1,28 @@
+{
+    "name": "pollauf/nyoze",
+    "description": "Entity-oriented PHP framework focused on consistency between domain, action and consequence.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["php", "framework", "entity", "architecture", "domain", "api", "crud", "pipeline"],
+    "homepage": "https://github.com/pollauf/nyoze",
+    "authors": [
+        {
+            "name": "Matheus Pollauf da Silva",
+            "homepage": "https://github.com/pollauf"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/pollauf/nyoze/issues",
+        "source": "https://github.com/pollauf/nyoze"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nyoze\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
