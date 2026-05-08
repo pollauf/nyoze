@@ -171,10 +171,23 @@ class Pipeline
     {
         if (!is_array($result->data)) return;
 
+        $previous = $ctx->entity();
+
         foreach ($result->data as $field => $value) {
+            // when — fires every time the field equals the value
             foreach ($this->entity->getWhenHooks($field) as $whenDef) {
                 if ($whenDef['value'] === $value) {
                     $this->callHook($whenDef['handler'], $result->data, $ctx);
+                }
+            }
+
+            // whenChanged — fires only if the value actually changed
+            foreach ($this->entity->getWhenChangedHooks($field) as $whenDef) {
+                if ($whenDef['value'] === $value) {
+                    $oldValue = $previous[$field] ?? null;
+                    if ($oldValue !== $value) {
+                        $this->callHook($whenDef['handler'], $result->data, $ctx);
+                    }
                 }
             }
         }
@@ -191,7 +204,10 @@ class Pipeline
     {
         if ($execCtx === null || !is_array($result->data)) return;
 
+        $previous = $ctx->entity();
+
         foreach ($result->data as $field => $value) {
+            // when — fires every time the field equals the value
             foreach ($this->entity->getWhenHooks($field) as $whenDef) {
                 if ($whenDef['value'] === $value) {
                     $handler    = $whenDef['handler'];
@@ -199,6 +215,20 @@ class Pipeline
                     $execCtx->queueWhenHook(function () use ($handler, $resultData, $ctx) {
                         $this->callHook($handler, $resultData, $ctx);
                     });
+                }
+            }
+
+            // whenChanged — fires only if the value actually changed
+            foreach ($this->entity->getWhenChangedHooks($field) as $whenDef) {
+                if ($whenDef['value'] === $value) {
+                    $oldValue = $previous[$field] ?? null;
+                    if ($oldValue !== $value) {
+                        $handler    = $whenDef['handler'];
+                        $resultData = $result->data;
+                        $execCtx->queueWhenHook(function () use ($handler, $resultData, $ctx) {
+                            $this->callHook($handler, $resultData, $ctx);
+                        });
+                    }
                 }
             }
         }

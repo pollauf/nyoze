@@ -32,6 +32,9 @@ class Entity
     /** @var array<string, list<array{field: string, value: mixed, handler: Closure|string}>> */
     private array $whenHooks = [];
 
+    /** @var array<string, list<array{field: string, value: mixed, handler: Closure|string}>> */
+    private array $whenChangedHooks = [];
+
     /** @var Invariant[] */
     private array $invariants = [];
 
@@ -242,6 +245,27 @@ class Entity
         return $this;
     }
 
+    /**
+     * Register a hook that fires only when a field's value CHANGES to the target value.
+     *
+     * Unlike `when()` which fires every time the field equals the value,
+     * `whenChanged()` fires only on the transition — i.e., the previous value
+     * was different from the new value.
+     *
+     * @param string         $field   The field to observe.
+     * @param mixed          $value   The target value that triggers the hook.
+     * @param Closure|string $handler Handler (receives $data, $ctx).
+     */
+    public function whenChanged(string $field, mixed $value, Closure|string $handler): self
+    {
+        $this->whenChangedHooks[$field][] = [
+            'field'   => $field,
+            'value'   => $value,
+            'handler' => $handler,
+        ];
+        return $this;
+    }
+
     /** @return list<Closure|string> */
     public function getBeforeHooks(string $event): array
     {
@@ -257,6 +281,11 @@ class Entity
     public function getWhenHooks(string $field): array
     {
         return $this->whenHooks[$field] ?? [];
+    }
+
+    public function getWhenChangedHooks(string $field): array
+    {
+        return $this->whenChangedHooks[$field] ?? [];
     }
 
     // =========================================================================
